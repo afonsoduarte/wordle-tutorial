@@ -331,6 +331,12 @@ function Cell({ index, letter, solution }: CellProps) {
 }
 ```
 
+## add keyboard
+
+```sh
+npm install react-simple-keyboard --save
+```
+
 ## progressive enhancement - Form
 
 ## animation
