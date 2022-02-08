@@ -16,39 +16,8 @@ const yyyy = now.getFullYear()
 const today = Number(yyyy + mm + dd)
 const solutionIndex = today - 20220128
 
-const solution = solutions[solutionIndex]
-
 const rows = Array.from({ length: 6 })
 const cells = Array.from({ length: 5 })
-
-const VALID_KEYS = [
-  'Q',
-  'W',
-  'E',
-  'R',
-  'T',
-  'Y',
-  'U',
-  'I',
-  'O',
-  'P',
-  'A',
-  'S',
-  'D',
-  'F',
-  'G',
-  'H',
-  'J',
-  'K',
-  'L',
-  'Z',
-  'X',
-  'C',
-  'V',
-  'B',
-  'N',
-  'M'
-]
 
 type LetterState = 'used' | 'guessed' | 'guessedInWrongLocation' | 'input'
 
@@ -97,6 +66,7 @@ export const action: ActionFunction = async ({
   const body = await request.formData()
   const word = body.get('word')?.toString().toLowerCase()
   const attempts = body.getAll('attempts') as string[]
+  const solution = solutions[solutionIndex]
 
   if (attempts.includes(solution)) {
     return {
@@ -216,7 +186,6 @@ export default function Wordle() {
             disabled={Boolean(data?.solved)}
             autoFocus
           />
-          {data?.error?.word === inputState && <p>Invalid word</p>}
           <button
             ref={buttonRef}
             type="submit"
@@ -226,6 +195,9 @@ export default function Wordle() {
             submit
           </button>
         </div>
+        {data?.error?.word === inputState && (
+          <p className="text-red-500">Invalid word</p>
+        )}
       </div>
       {/* <Keyboard
         onKeyPress={handleKeyDown}
