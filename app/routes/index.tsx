@@ -70,7 +70,7 @@ function attemptsWithState(
     letterStates[i] = []
     for (let j = 0; j < letters.length; j++) {
       const letter = letters[j]
-      if (solution.indexOf(letter) === j) {
+      if (solution[j] === letter) {
         letterStates[i].push({ letter, state: 'guessed' })
       } else if (solution.includes(letter)) {
         letterStates[i].push({ letter, state: 'guessedInWrongLocation' })
@@ -97,6 +97,13 @@ export const action: ActionFunction = async ({
   const body = await request.formData()
   const word = body.get('word')?.toString().toLowerCase()
   const attempts = body.getAll('attempts') as string[]
+
+  if (attempts.includes(solution)) {
+    return {
+      solved: solution,
+      attempts: attemptsWithState(attempts, solution)
+    }
+  }
 
   if (typeof word !== 'string') {
     return {
@@ -153,7 +160,12 @@ export default function Wordle() {
   }, [])
 
   return (
-    <form method="POST" action="/?index" className="m-auto max-w-lg">
+    <form
+      method="POST"
+      action="/?index"
+      className="m-auto max-w-lg"
+      onClick={() => inputRef.current?.focus()}
+    >
       {rows.map((_, rowIndex) => {
         const row = allRows[rowIndex]
         return (
@@ -182,14 +194,13 @@ export default function Wordle() {
           className="grid"
         />
       ))}
-      {data?.solved ? (
-        <div>{data.solved}</div>
-      ) : (
-        <label>
-          <p>type a 5 letter word</p>
+      <div className="flex flex-col items-center gap-2 mt-8">
+        <label htmlFor="word">Type a 5 letter word</label>
+        <div className={`flex gap-2 outline-none `}>
           <input
             ref={inputRef}
             type="text"
+            id="word"
             name="word"
             required
             value={inputState}
@@ -201,14 +212,21 @@ export default function Wordle() {
             maxLength={5}
             pattern="[a-zA-Z]{5}"
             title="5 letters"
+            className="border-2 border-gray-600 p-2 w-40"
+            disabled={Boolean(data?.solved)}
             autoFocus
           />
           {data?.error?.word === inputState && <p>Invalid word</p>}
-          <button ref={buttonRef} type="submit">
+          <button
+            ref={buttonRef}
+            type="submit"
+            disabled={Boolean(data?.solved)}
+            className="uppercase text-sm tracking-wide border-2 border-gray-600 p-2"
+          >
             submit
           </button>
-        </label>
-      )}
+        </div>
+      </div>
       {/* <Keyboard
         onKeyPress={handleKeyDown}
         usedLetters={data?.attempts.join('').split('') || []}
